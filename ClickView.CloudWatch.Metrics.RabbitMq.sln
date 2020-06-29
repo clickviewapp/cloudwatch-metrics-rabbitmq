@@ -1,0 +1,16 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClickView.CloudWatch.Metrics.RabbitMq", "src\ClickView.CloudWatch.Metrics.RabbitMq\ClickView.CloudWatch.Metrics.RabbitMq.csproj", "{779B258E-D67A-496F-9BA2-3FF6DF3D3E45}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{779B258E-D67A-496F-9BA2-3FF6DF3D3E45}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{779B258E-D67A-496F-9BA2-3FF6DF3D3E45}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{779B258E-D67A-496F-9BA2-3FF6DF3D3E45}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{779B258E-D67A-496F-9BA2-3FF6DF3D3E45}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
