@@ -70,16 +70,17 @@
 
                 var queues = await _rabbitMqClient.GetQueuesAsync(token);
 
-                var metrics = queues.SelectMany(CreateMetrics).ToList();
-                
                 _logger.LogInformation("Publishing metrics...");
 
-                await _awsCloudWatchClient.PutMetricDataAsync(new PutMetricDataRequest
+                foreach (var queue in queues)
                 {
-                    MetricData = metrics,
-                    Namespace = "RabbitMQ"
-                }, token);
-                
+                    await _awsCloudWatchClient.PutMetricDataAsync(new PutMetricDataRequest
+                    {
+                        MetricData = CreateMetrics(queue),
+                        Namespace = "RabbitMQ"
+                    }, token);
+                }
+
                 _logger.LogInformation("Finished publishing metrics");
             }
             catch (Exception ex)
@@ -88,9 +89,9 @@
             }
         }
 
-        private static IEnumerable<MetricDatum> CreateMetrics(Queue queue)
+        private static List<MetricDatum> CreateMetrics(Queue queue)
         {
-            return new[]
+            return new List<MetricDatum>
             {
                 CreateMetric(queue.Name, "MessagesReady", queue.MessagesReady),
                 CreateMetric(queue.Name, "MessagesUnacknowledged", queue.MessagesUnacknowledged),
