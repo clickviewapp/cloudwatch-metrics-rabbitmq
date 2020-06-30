@@ -9,6 +9,7 @@
     using Amazon.CloudWatch.Model;
     using EasyNetQ.Management.Client;
     using EasyNetQ.Management.Client.Model;
+    using Extensions;
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
@@ -70,15 +71,23 @@
 
                 var queues = await _rabbitMqClient.GetQueuesAsync(token);
 
-                var metrics = queues.SelectMany(CreateMetrics).ToList();
-                
                 _logger.LogInformation("Publishing metrics...");
 
-                await _awsCloudWatchClient.PutMetricDataAsync(new PutMetricDataRequest
-                {
-                    MetricData = metrics,
-                    Namespace = "RabbitMQ"
-                }, token);
+                var tasks = queues
+                    // Split into groups of 20
+                    .GroupInto(20)
+                    // Create the metrics for each group
+                    .Select(group => group
+                        .SelectMany(CreateMetrics)) 
+                    // Publish the metrics for each group
+                    .Select(metrics => _awsCloudWatchClient.PutMetricDataAsync(
+                        new PutMetricDataRequest
+                        {
+                            MetricData = metrics.ToList(),
+                            Namespace = "RabbitMQ"
+                        }, token));
+
+                await Task.WhenAll(tasks);
                 
                 _logger.LogInformation("Finished publishing metrics");
             }
@@ -90,7 +99,7 @@
 
         private static IEnumerable<MetricDatum> CreateMetrics(Queue queue)
         {
-            return new[]
+            return new []
             {
                 CreateMetric(queue.Name, "MessagesReady", queue.MessagesReady),
                 CreateMetric(queue.Name, "MessagesUnacknowledged", queue.MessagesUnacknowledged),
