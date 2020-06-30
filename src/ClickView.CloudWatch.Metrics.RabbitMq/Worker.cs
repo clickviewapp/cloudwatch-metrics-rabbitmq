@@ -74,12 +74,8 @@
                 _logger.LogInformation("Publishing metrics...");
 
                 var tasks = queues
-                    // Split into groups of 20
+                    .SelectMany(CreateMetrics)
                     .GroupInto(20)
-                    // Create the metrics for each group
-                    .Select(group => group
-                        .SelectMany(CreateMetrics)) 
-                    // Publish the metrics for each group
                     .Select(metrics => _awsCloudWatchClient.PutMetricDataAsync(
                         new PutMetricDataRequest
                         {
